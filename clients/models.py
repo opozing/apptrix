@@ -2,12 +2,30 @@ from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager,
                                         PermissionsMixin)
+from rest_framework.authtoken.models import Token
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from django.conf import settings
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    """
+    По сигналу 'post_save' создает токен для нового пользователя.
+    """
+    if created:
+        Token.objects.create(user=instance)
 
 
 class UserManager(BaseUserManager):
+    """
+    Создает пользователя с имэйлом и паролем.
+    """
     use_in_migrations = True
 
     def create_user(self, email, password):
+        if email is None:
+            raise TypeError('Введите email адрес.')
         user = self.model(email=email, password=password)
         user.set_password(password)
         user.is_staff = False
@@ -16,6 +34,11 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password):
+        """
+        Создает пользователя со статусом админа.
+        """
+        if password is None:
+            raise TypeError('Введите пароль.')
         user = self.create_user(email=email, password=password)
         user.is_active = True
         user.is_staff = True
@@ -25,6 +48,9 @@ class UserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    """
+    Модель кастомного юзера с нужными полями.
+    """
     class SexChoices(models.TextChoices):
         MALE = 'ML'
         FEMALE = 'FL'
@@ -34,6 +60,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=25)
     last_name = models.CharField(max_length=25)
     email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
@@ -43,3 +70,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+
+    def __str__(self):
+        return self.email

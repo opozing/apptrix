@@ -1,16 +1,29 @@
 from rest_framework import serializers
 from clients.models import CustomUser
 from django.contrib.auth import authenticate
+# from drf_extra_fields.fields import Base64ImageField
+from .base64 import Base64ImageField
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
     """
     Сериализатор создания нового пользователя.
     """
+    avatar = Base64ImageField()
+
     class Meta:
         model = CustomUser
         fields = ('avatar', 'sex', 'first_name', 'last_name', 'email',
                   'password')
+
+    def validate_email(self, data):
+        """
+        Валидация поля email.
+        """
+        if CustomUser.objects.filter(email=data).exists():
+            raise serializers.ValidationError(
+                'Такой email уже существует.')
+        return data
 
 
 class CustomObtainAuthTokenSerializer(serializers.Serializer):
@@ -33,6 +46,9 @@ class CustomObtainAuthTokenSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
+        """
+        Валидация email и password для получения токена при авторизации.
+        """
         email = attrs.get('email')
         password = attrs.get('password')
 

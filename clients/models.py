@@ -55,7 +55,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         MALE = 'ML'
         FEMALE = 'FL'
 
-    avatar = models.ImageField(upload_to='avatars')
+    avatar = models.ImageField(upload_to='avatars/')
     sex = models.CharField(max_length=2, choices=SexChoices.choices)
     first_name = models.CharField(max_length=25)
     last_name = models.CharField(max_length=25)

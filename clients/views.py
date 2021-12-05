@@ -1,8 +1,10 @@
 from .models import CustomUser
+
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions, mixins
 from .serializers import CustomUserSerializer, CustomObtainAuthTokenSerializer
+from .functions import watermark
 
 
 class UserViewSet(mixins.CreateModelMixin,
@@ -17,6 +19,7 @@ class UserViewSet(mixins.CreateModelMixin,
     def create(self, request, *args, **kwargs):
         """
         Хеширует пароль для получения токена.
+        Накладывает водяной знак на аватарку.
         """
         serializer = CustomUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -25,6 +28,7 @@ class UserViewSet(mixins.CreateModelMixin,
         email = serializer.data['email']
         user = CustomUser.objects.get(email=email)
         user.set_password(password)
+        watermark(user.avatar)
         user.save()
         serializer = CustomUserSerializer(user)
         headers = self.get_success_headers(serializer.data)

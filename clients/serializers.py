@@ -63,3 +63,12 @@ class CustomObtainAuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class ListUserSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор отображения списка пользователей.
+    """
+    class Meta:
+        model = CustomUser
+        fields = ('avatar', 'sex', 'first_name', 'last_name', 'email')

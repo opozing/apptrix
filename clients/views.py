@@ -4,8 +4,10 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions, mixins
 from .serializers import (CustomUserSerializer,
-                          CustomObtainAuthTokenSerializer)
+                          CustomObtainAuthTokenSerializer,
+                          ListUserSerializer)
 from .functions import watermark, send_email
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class UserViewSet(mixins.CreateModelMixin,
@@ -31,7 +33,7 @@ class UserViewSet(mixins.CreateModelMixin,
         user.set_password(password)
         watermark(user.avatar)
         user.save()
-        serializer = CustomUserSerializer(user)
+        serializer = ListUserSerializer(user)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data,
                         status=status.HTTP_201_CREATED,
@@ -76,3 +78,15 @@ class MatchViewSet(mixins.ListModelMixin,
             send_email(user, user_like)
             send_email(user_like, user)
         return Response({'Лайк поставлен!'}, status=status.HTTP_201_CREATED)
+
+
+class ListViewSet(viewsets.ModelViewSet):
+    """
+    Отображает список всех пользователей.
+    Фильтрация по полям 'sex', 'first_name', 'last_name
+    """
+    queryset = CustomUser.objects.all()
+    permission_classes = [permissions.AllowAny]
+    serializer_class = ListUserSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['sex', 'first_name', 'last_name']

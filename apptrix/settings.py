@@ -99,3 +99,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     )
 }
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'testworkapptrix@yandex.ru'
+EMAIL_HOST_PASSWORD = 'Test123456'
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True

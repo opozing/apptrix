@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from clients.models import CustomUser
 from django.contrib.auth import authenticate
-# from drf_extra_fields.fields import Base64ImageField
 from .base64 import Base64ImageField
 
 

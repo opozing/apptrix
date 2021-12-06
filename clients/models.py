@@ -73,3 +73,20 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class Match(models.Model):
+    """
+    Модель лайков юзера.
+    """
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
+                             related_name='liked_to')
+    user_like = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
+                                  related_name='was_liked')
+
+    class Meta:
+        verbose_name = "Match"
+        verbose_name_plural = "Matches"
+
+        constraints = [models.UniqueConstraint(fields=['user', 'user_like'],
+                                               name='unique_match')]

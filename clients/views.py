@@ -1,16 +1,17 @@
-from .models import CustomUser
-
+from .models import CustomUser, Match
+from django.shortcuts import get_object_or_404
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions, mixins
-from .serializers import CustomUserSerializer, CustomObtainAuthTokenSerializer
-from .functions import watermark
+from .serializers import (CustomUserSerializer,
+                          CustomObtainAuthTokenSerializer)
+from .functions import watermark, send_email
 
 
 class UserViewSet(mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     """
-    Сздает пользователя
+    Сздает пользователя. Доступен только POST запрос.
     """
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
@@ -38,4 +39,40 @@ class UserViewSet(mixins.CreateModelMixin,
 
 
 class CustomObtainAuthToken(ObtainAuthToken):
+    """
+    Выдает пользователю токен при авторизации.
+    """
     serializer_class = CustomObtainAuthTokenSerializer
+
+
+class MatchViewSet(mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
+    """
+    Создает обьекты лайка между пользователями.
+    Отправляет письма пользователям если у них Match.
+    """
+    queryset = Match.objects.all()
+    permission_classes = [permissions.AllowAny]
+    serializer_class = None
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        user_like = get_object_or_404(CustomUser,
+                                      id=self.kwargs.get('user_id'))
+        exist = Match.objects.filter(user=user,
+                                     user_like=user_like).exists()
+
+        if user == user_like:
+            return Response({'Нельзя лайкнуть самого себя.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif exist:
+            return Response({'Вы уже поставили лайк этому пользователю!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        Match.objects.create(user=user, user_like=user_like)
+        match = Match.objects.filter(user=user_like, user_like=user).exists()
+
+        if match:
+            send_email(user, user_like)
+            send_email(user_like, user)
+        return Response({'Лайк поставлен!'}, status=status.HTTP_201_CREATED)

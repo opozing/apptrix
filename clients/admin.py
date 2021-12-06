@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import CustomUser, Match
 
 
@@ -7,7 +8,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     Отображает поля модели CustomUser в админке.
     """
     list_display = ('pk', 'avatar', 'sex', 'first_name', 'last_name', 'email',
-                    'password')
+                    'password', 'lat', 'lon')
 
 
 class MatchAdmin(admin.ModelAdmin):

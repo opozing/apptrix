@@ -1,13 +1,13 @@
-from .models import CustomUser, Match
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
-from rest_framework import status, viewsets, permissions, mixins
-from .serializers import (CustomUserSerializer,
-                          CustomObtainAuthTokenSerializer,
-                          ListUserSerializer)
-from .functions import watermark, send_email
-from django_filters.rest_framework import DjangoFilterBackend
+
+from .functions import distance, send_email, watermark
+from .models import CustomUser, Match
+from .serializers import (CustomObtainAuthTokenSerializer,
+                          CustomUserSerializer, ListUserSerializer)
 
 
 class UserViewSet(mixins.CreateModelMixin,
@@ -90,3 +90,19 @@ class ListViewSet(viewsets.ModelViewSet):
     serializer_class = ListUserSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['sex', 'first_name', 'last_name']
+
+    def get_queryset(self):
+        """
+        Определяет расстояние до всех пользователей.
+        Если пользователь в зоне поражения - добавляет в список и отображает
+        его.
+        """
+        if self.request.query_params.get('distance'):
+            dist = self.request.query_params.get('distance')
+            users = []
+            for client in self.queryset:
+                if distance(client.lat, client.lon, self.request.user.lat,
+                            self.request.user.lon) <= int(dist):
+                    users.append(client)
+            return self.queryset.filter(email__in=users)
+        return self.queryset

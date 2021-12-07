@@ -2,8 +2,9 @@
 Тестовое задание на вакансию backend python junior
 
 - Проект доступен  на гитхаб  по ссылке https://github.com/opozing/apptrix
-- ССылка на API проекта http://127.0.0.1:8000/api/clients
-
+- Атакже проект залит на хостинг и работает по ссылке https://opozing.pythonanywhere.com/api/list/
+- email дминистратора : admin@ya.ru
+- пароль администратора : admin
 
 ### Описание
 Test Apptrix - бекэнд для сайта (приложения) знакомств.
@@ -24,10 +25,13 @@ SMTP
 
 ### Запуск проекта
 Необходимо установить расширения
- - pip install -r /path/to/requirements.txt
+- pip install -r /path/to/requirements.txt
 
 Проект запускается командой
- - python manage.py runserver
+- python manage.py runserver
+
+ССылка на API проекта
+- http://127.0.0.1:8000/api/clients
 
 
 

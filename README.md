@@ -5,6 +5,8 @@
 - Атакже проект залит на хостинг и работает по ссылке https://opozing.pythonanywhere.com/api/list/
 - email дминистратора : admin@ya.ru
 - пароль администратора : admin
+- ![Тестовое APPTRIX](https://user-images.githubusercontent.com/75737100/145248209-ff1f0db5-5869-4de6-8c98-74e23cfcf37c.JPG)
+
 
 ### Описание
 Test Apptrix - бекэнд для сайта (приложения) знакомств.
